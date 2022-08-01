@@ -40,10 +40,6 @@
 
 # COMMAND ----------
 
-ahoj
-
-# COMMAND ----------
-
 # MAGIC %md ### Execute code in multiple languages
 # MAGIC Run default language of notebook
 

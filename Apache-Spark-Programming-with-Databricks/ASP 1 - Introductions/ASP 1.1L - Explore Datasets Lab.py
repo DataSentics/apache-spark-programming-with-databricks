@@ -37,7 +37,6 @@
 
 # TODO
 <FILL_IN>
-ahoj
 
 # COMMAND ----------
 
