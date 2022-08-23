@@ -39,7 +39,9 @@ display(events_df)
 # COMMAND ----------
 
 # TODO
-revenue_df = events_df.FILL_IN
+from pyspark.sql.functions import col
+
+revenue_df = col(events_df.ecommerce.purchase_revenue_in_usd)
 display(revenue_df)
 
 # COMMAND ----------
