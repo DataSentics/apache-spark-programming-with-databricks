@@ -280,6 +280,7 @@ display(increase_sessions_df)
 
 # COMMAND ----------
 
+
 decrease_sessions_df = events_df.sort(col("user_first_touch_timestamp").desc(), col("event_timestamp"))
 display(decrease_sessions_df)
 
