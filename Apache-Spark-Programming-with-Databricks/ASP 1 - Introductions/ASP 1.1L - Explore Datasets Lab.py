@@ -35,8 +35,8 @@
 
 # COMMAND ----------
 
-# TODO
-<FILL_IN>
+# MAGIC 
+# MAGIC %fs ls /databricks-datasets
 
 # COMMAND ----------
 
@@ -48,8 +48,8 @@
 
 # COMMAND ----------
 
-# TODO
-files = dbutils.FILL_IN
+
+files = dbutils.fs.ls("/databricks-datasets")
 display(files)
 
 # COMMAND ----------
@@ -65,7 +65,21 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC CREATE TABLE IF NOT EXISTS users
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.users_path}");
+# MAGIC 
+# MAGIC CREATE TABLE IF NOT EXISTS events
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.events_path}");
+# MAGIC 
+# MAGIC CREATE TABLE IF NOT EXISTS sales
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.sales_path}");
+# MAGIC 
+# MAGIC CREATE TABLE IF NOT EXISTS products
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.products_path}");
 
 # COMMAND ----------
 
@@ -101,7 +115,7 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT * FROM products
 
 # COMMAND ----------
 
@@ -127,7 +141,8 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC Select AVG(purchase_revenue_in_usd) AS average_revenue
+# MAGIC FROM SALES 
 
 # COMMAND ----------
 
@@ -156,7 +171,9 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT event_name AS different_event_name 
+# MAGIC FROM events 
+# MAGIC GROUP BY event_name
 
 # COMMAND ----------
 
