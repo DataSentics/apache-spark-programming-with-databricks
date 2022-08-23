@@ -36,7 +36,7 @@
 # COMMAND ----------
 
 # TODO
-<FILL_IN>
+%fs ls /databricks-datasets
 
 # COMMAND ----------
 
@@ -49,7 +49,7 @@
 # COMMAND ----------
 
 # TODO
-files = dbutils.FILL_IN
+files = dbutils.fs.ls("/databricks-datasets")
 display(files)
 
 # COMMAND ----------
@@ -65,7 +65,18 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC CREATE TABLE IF NOT EXISTS products
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.products_path}");
+# MAGIC CREATE TABLE IF NOT EXISTS users
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.users_path}");
+# MAGIC CREATE TABLE IF NOT EXISTS sales
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.sales_path}");
+# MAGIC CREATE TABLE IF NOT EXISTS events;
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.events_path}");
 
 # COMMAND ----------
 
@@ -101,7 +112,7 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT * FROM PRODUCTS
 
 # COMMAND ----------
 
@@ -127,7 +138,8 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT AVG(purchase_revenue_in_usd)
+# MAGIC FROM sales;
 
 # COMMAND ----------
 
@@ -156,7 +168,8 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT DISTINCT event_name
+# MAGIC from events;
 
 # COMMAND ----------
 
