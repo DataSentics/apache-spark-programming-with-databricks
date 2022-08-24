@@ -101,7 +101,7 @@ print("All test pass")
 # TODO
 conversions_df = (users_df.join(converted_users_df, "email", "outer")
                   .where("email is not null")
-                  .na.fill("False"))
+                  .fillna(False))
                  
 display(conversions_df)
 
