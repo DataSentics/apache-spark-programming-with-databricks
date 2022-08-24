@@ -35,9 +35,7 @@
 # COMMAND ----------
 
 # TODO
-events_df =  spark.sql("""
-SELECT *
-FROM events""")
+events_df =  spark.table("events")
 
 
 # COMMAND ----------
@@ -63,7 +61,6 @@ display(events_df)
 
 # TODO
 mac_df = (events_df
-          .select("*")
           .where("device = 'macOS'")
           .sort("event_timestamp")
          )
@@ -78,7 +75,7 @@ display(mac_df)
 
 # TODO
 num_rows = mac_df.count()
-rows = mac_df.show(5)
+rows = mac_df.take(5)
 
 
 # COMMAND ----------
