@@ -63,7 +63,6 @@ events_df.printSchema()
 
 # TODO
 mac_df = (events_df
-          .select("device", "event_timestamp")
           .where(" device == 'macOS' ")
           .orderBy("event_timestamp")
          )
