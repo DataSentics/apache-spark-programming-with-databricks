@@ -35,8 +35,7 @@
 
 # COMMAND ----------
 
-# TODO
-%fs ls /databricks-datasets
+# MAGIC %fs ls /databricks-datasets
 
 # COMMAND ----------
 

@@ -60,7 +60,6 @@ events_df.printSchema()
 
 # TODO
 mac_df = (events_df
-          .select("*")
           .where("device == 'macOS'")
           .orderBy("event_timestamp")
           )
@@ -76,7 +75,7 @@ mac_df = (events_df
 
 # TODO
 num_rows = mac_df.count()
-rows = mac_df.show(5)
+rows = mac_df.take(5)
 
 
 

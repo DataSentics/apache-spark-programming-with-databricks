@@ -161,6 +161,7 @@ display(apple_df)
 anonymous_df = events_df.drop("user_id", "geo", "device")
 display(anonymous_df)
 
+
 # COMMAND ----------
 
 no_sales_df = events_df.drop(col("ecommerce"))
