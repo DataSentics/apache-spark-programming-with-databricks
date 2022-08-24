@@ -93,10 +93,10 @@ rev_df = (events_df
          .filter(col("ecommerce.purchase_revenue_in_usd").isNotNull())
          .withColumn("purchase_revenue", (col("ecommerce.purchase_revenue_in_usd") * 100).cast("int"))
          .withColumn("avg_purchase_revenue", col("ecommerce.purchase_revenue_in_usd") / col("ecommerce.total_item_quantity"))
-         .sort(col("avg_purchase_revenue").desc())
+         .sort(col("avg_purchase_revenue").asc())
         )
 
-display(rev_df)
+display(rev_df.sort(col("ecommerce.total_item_quantity").desc()))
 
 # COMMAND ----------
 

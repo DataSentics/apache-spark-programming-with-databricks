@@ -62,7 +62,7 @@ display(df)
 
 # COMMAND ----------
 
-timestamp_df = df.withColumn("timestamp", (col("timestamp") / 1e6).cast("timestamp"))
+ftimestamp_df = df.withColumn("timestamp", (col("timestamp") / 1e6).cast("timestamp"))
 display(timestamp_df)
 
 # COMMAND ----------
