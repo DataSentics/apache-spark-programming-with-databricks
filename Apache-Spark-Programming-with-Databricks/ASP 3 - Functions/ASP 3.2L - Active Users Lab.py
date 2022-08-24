@@ -47,8 +47,10 @@ display(df)
 # COMMAND ----------
 
 # TODO
-datetime_df = (df.FILL_IN
-)
+datetime_df = (df
+               .withColumn("ts", ((col("ts")/1e6).cast("timestamp")))
+               .withColumn("date", (col("ts").cast("date")))
+              )
 display(datetime_df)
 
 # COMMAND ----------
@@ -91,7 +93,11 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-active_users_df = (datetime_df.FILL_IN
+from pyspark.sql.functions import approx_count_distinct
+active_users_df = (datetime_df
+                   .groupBy("date")
+                   .agg( approx_count_distinct("user_id").alias("active_users"))
+                   .orderBy("date", ascending=False)
 )
 display(active_users_df)
 
@@ -131,7 +137,12 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-active_dow_df = (active_users_df.FILL_IN
+from pyspark.sql.functions import dayofweek, avg, date_format
+active_dow_df = (active_users_df
+                 .withColumn( "day", date_format(col("date").cast("timestamp"), "E" ))
+                 .groupBy("day")
+                 .agg( avg("active_users").alias("avg_users") )
+                 
 )
 display(active_dow_df)
 
