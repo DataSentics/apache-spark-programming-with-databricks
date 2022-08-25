@@ -259,15 +259,11 @@ print("All test pass")
 #I don't know where to actually grab "product" from. It doesn't exist in any dataframe. I tried to join some tables in order to get it, but i only spent
 #Around 10 minutes on it. With more time, I can get it done.
 
-joined_df = sales_df.join(other = events_df, on = "")
-product_work_df = (sales_df
-                   .select("user_id, items")
-                   .withColumn("product", explode("items"))
-                   .groupby("user_id")
-)
-
 abandoned_items_df = (abandoned_carts_df
-                      .join(other = product_work_df, on ='user_id', how ="left")
+                      .withColumn("items", explode("cart"))
+                      .groupBy("items")
+                      .count()
+                      .sort("items")
                      )
 display(abandoned_items_df)
 

@@ -60,14 +60,86 @@ dbutils.fs.head(f"{datasets_dir}/people/people-with-dups.txt")
 # COMMAND ----------
 
 # TODO
+#'firstName:middleName:lastName:gender:birthDate:salary:ssn
+from pyspark.sql.types import LongType, DoubleType, StringType, DateType, StructType, StructField
+from pyspark.sql.functions import initcap, col, regexp_replace
 
 source_file = f"{datasets_dir}/people/people-with-dups.txt"
-delta_dest_dir = working_dir + "/people"
+delta_dest_dir = working_dir + "/people/"
 
 # In case it already exists
 dbutils.fs.rm(delta_dest_dir, True)
 
 # Complete your work here...
+
+#Schema defined for faster reading, to avoid parsing the entire file
+users_schema = StructType([
+    StructField("firstName", StringType(), True),
+    StructField("middleName", StringType(), True),
+    StructField("lastName", StringType(), True),
+    StructField("gender", StringType(), True),
+    StructField("birthDate", DateType(), True),
+    StructField("salary",LongType(), True),
+    StructField("ssn", StringType(), True)
+])
+
+users_df = (spark
+            .read
+            .option("sep", ":")
+            .option("header", True)
+            .schema(users_schema)
+            .csv(source_file)
+)
+#users_df.printSchema()
+
+# Remove duplicates. It doesn't matter which record you keep; it only matters that you keep one of them.
+
+
+
+# (users_df
+#  .write
+#  .format("delta")
+#  .mode("overwrite")
+#  .save(delta_dest_dir)
+# )
+
+users_df_convert = (users_df
+                    #Make all names title case
+                    .withColumn("firstName", initcap(col("firstName")))
+                    .withColumn("middleName", initcap(col("middleName")))
+                    .withColumn("lastName", initcap(col("lastName")))
+                    #remove hyphens from ssn using regex
+                    .withColumn("ssn", regexp_replace(col("ssn"), "-", ""))
+
+                    
+           )
+
+#Check if there are 103,000 records
+users_df_convert_count = users_df_convert.count()
+
+
+#drop duplicates
+users_df_final = users_df_convert.distinct()
+
+#Check if there are only 100,000 records after dropping duplicates
+users_df_final_count = users_df_final.count()
+
+print(users_df_convert_count)
+print(users_df_final_count)
+
+display(users_df_final)
+
+(users_df_final
+.repartition(1)
+.write
+.mode("overwrite")
+.format("delta")
+.save(delta_dest_dir)
+)
+
+
+
+display(dbutils.fs.ls(delta_dest_dir))
 
 
 # COMMAND ----------
