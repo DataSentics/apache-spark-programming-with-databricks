@@ -250,7 +250,11 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-abandoned_items_df = (abandoned_carts_df.groupby("cart").agg(count("cart"))
+abandoned_items_df = (abandoned_carts_df
+                      .withColumn("items", explode("cart"))
+                      .groupBy("items")
+                      .count()
+                      .sort("items")
                      )
 display(abandoned_items_df)
 
