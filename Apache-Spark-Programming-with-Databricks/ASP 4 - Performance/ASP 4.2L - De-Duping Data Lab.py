@@ -67,7 +67,52 @@ delta_dest_dir = working_dir + "/people"
 # In case it already exists
 dbutils.fs.rm(delta_dest_dir, True)
 
-# Complete your work here...
+# dropDuplicates() will introduce a shuffle, so it helps to reduce the number of post-shuffle partitions.
+spark.conf.set("spark.sql.shuffle.partitions", 8)
+
+
+
+# Okay, now we can read this thing
+df = (spark
+      .read
+      .option("header", "true")
+      .option("inferSchema", "true")
+      .option("sep", ":")
+      .csv(source_file)
+     )
+
+
+
+from pyspark.sql.functions import col, lower, translate
+
+
+
+deduped_df = (df
+             .select(col("*"),
+                     lower(col("firstName")).alias("lcFirstName"),
+                     lower(col("lastName")).alias("lcLastName"),
+                     lower(col("middleName")).alias("lcMiddleName"),
+                     translate(col("ssn"), "-", "").alias("ssnNums")
+                     # regexp_replace(col("ssn"), "-", "").alias("ssnNums")  # An alternate function to strip the hyphens
+                     # regexp_replace(col("ssn"), """^(\d{3})(\d{2})(\d{4})$""", "$1-$2-$3").alias("ssnNums")  # An alternate that adds hyphens if missing
+                    )
+             .dropDuplicates(["lcFirstName", "lcMiddleName", "lcLastName", "ssnNums", "gender", "birthDate", "salary"])
+             .drop("lcFirstName", "lcMiddleName", "lcLastName", "ssnNums")
+            )
+
+
+
+(deduped_df
+.repartition(1)
+.write
+.mode("overwrite")
+.format("delta")
+.save(delta_dest_dir)
+)
+
+
+
+display(dbutils.fs.ls(delta_dest_dir))
 
 
 # COMMAND ----------

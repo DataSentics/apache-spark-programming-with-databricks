@@ -40,7 +40,10 @@ df = (spark
       .load(events_path)
      )
 
-df.isStreaming
+df.isStreaming  
+coupon_sales_df = (df
+                   .withColumn("items", explode("items"))
+                   .filter(col("items.coupon").isNotNull())
 
 # COMMAND ----------
 

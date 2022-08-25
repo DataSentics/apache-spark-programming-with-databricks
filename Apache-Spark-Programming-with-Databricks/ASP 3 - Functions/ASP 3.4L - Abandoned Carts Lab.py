@@ -246,7 +246,11 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-abandoned_items_df = (abandoned_carts_df.FILL_IN
+abandoned_items_df = (abandoned_carts_df
+                      .withColumn("items", explode("cart"))
+                      .groupBy("items")
+                      .count()
+                      .sort("items")
                      )
 display(abandoned_items_df)
 

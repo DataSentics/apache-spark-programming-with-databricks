@@ -36,8 +36,13 @@
 # COMMAND ----------
 
 # TODO
-df = (spark.FILL_IN
-)
+df = (spark
+      .readStream
+      .option("maxFilesPerTrigger", 1)
+      .format("delta")
+      .load(sales_path)
+     )
+
 
 # COMMAND ----------
 
@@ -59,8 +64,9 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-coupon_sales_df = (df.FILL_IN
+from pyspark.sql.functions import col, explode
+coupon_sales_df = (df.withColumn("items", explode("items"))
+                   .filter(col("items.coupon").isNotNull())
 )
 
 # COMMAND ----------
@@ -90,8 +96,16 @@ print("All test pass")
 coupons_checkpoint_path = working_dir + "/coupon-sales/checkpoint"
 coupons_output_path = working_dir + "/coupon-sales/output"
 
-coupon_sales_query = (coupon_sales_df.FILL_IN
-                     )
+coupon_sales_query = (coupon_sales_df
+                 .writeStream
+                 .outputMode("append")
+                 .format("delta")
+                 .queryName("coupon-sales")
+                 .trigger(processingTime="1 second")
+                 .option("checkpointLocation",coupons_checkpoint_path )
+                 .start(coupons_output_path)
+                )
+                     
 
 # COMMAND ----------
 
@@ -115,12 +129,12 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-query_id = coupon_sales_query.FILL_IN
+query_id = coupon_sales_query.id
 
 # COMMAND ----------
 
 # TODO
-query_status = coupon_sales_query.FILL_IN
+query_status = coupon_sales_query.status
 
 # COMMAND ----------
 
@@ -140,7 +154,7 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-coupon_sales_query.FILL_IN
+coupon_sales_query.stop()
 
 # COMMAND ----------
 
@@ -157,7 +171,7 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
+spark.read.format("delta").load(coupons_output_path)
 
 # COMMAND ----------
 
