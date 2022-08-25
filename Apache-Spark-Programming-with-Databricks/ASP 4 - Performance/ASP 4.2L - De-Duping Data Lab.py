@@ -60,15 +60,34 @@ dbutils.fs.head(f"{datasets_dir}/people/people-with-dups.txt")
 # COMMAND ----------
 
 # TODO
+from pyspark.sql import functions as F
 
 source_file = f"{datasets_dir}/people/people-with-dups.txt"
 delta_dest_dir = working_dir + "/people"
 
+df1 = (spark.read.option("delimiter",":")
+       .option("header", "true")
+       .csv(source_file))
+
+df2 = (df1.withColumn("ssn", F.regexp_replace(col("ssn"), "-", ""))
+       .withColumn("firstName", F.upper(col("firstName")))
+       .withColumn("middleName", F.upper(col("middleName")))
+       .withColumn("lastName", F.upper(col("lastName")))
+       .dropDuplicates())
+
+# display(df2)
+# print(df2.count()) 
+
 # In case it already exists
 dbutils.fs.rm(delta_dest_dir, True)
 
+(df2.repartition(1)
+.write
+.mode("overwrite")
+.format("delta")
+.save(delta_dest_dir)
+)
 # Complete your work here...
-
 
 # COMMAND ----------
 

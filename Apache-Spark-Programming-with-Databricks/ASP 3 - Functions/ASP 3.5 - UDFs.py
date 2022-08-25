@@ -67,6 +67,7 @@ first_letter_function("annagray@kaufman.com")
 
 first_letter_udf = udf(first_letter_function)
 
+
 # COMMAND ----------
 
 # MAGIC %md Apply the UDF on the **`email`** column.
