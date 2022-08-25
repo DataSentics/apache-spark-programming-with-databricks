@@ -72,6 +72,18 @@ dbutils.fs.rm(delta_dest_dir, True)
 
 # COMMAND ----------
 
+people_df = (spark
+           .read
+           .option("sep", ":")
+           .option("header", True)
+           .option("inferSchema", True)
+           .csv(source_file)
+          )
+people_df.printSchema()
+display(people_df)
+
+# COMMAND ----------
+
 # MAGIC %md **CHECK YOUR WORK**
 
 # COMMAND ----------

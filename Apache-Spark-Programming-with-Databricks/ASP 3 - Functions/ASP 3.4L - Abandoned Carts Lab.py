@@ -251,8 +251,10 @@ print("All test pass")
 
 # display(abandoned_carts_df)
 abandoned_items_df = (abandoned_carts_df
-                      .agg(collect_set("cart").alias("items"))
-                      
+                      .withColumn("items",explode("cart"))
+                      .groupBy("items")
+                      .count()
+                      .sort("items")
                      )
 display(abandoned_items_df)
 
@@ -269,7 +271,6 @@ abandoned_items_df.count()
 # COMMAND ----------
 
 expected_columns = ["items", "count"]
-
 expected_count = 12
 
 assert abandoned_items_df.count() == expected_count, "Counts do not match"

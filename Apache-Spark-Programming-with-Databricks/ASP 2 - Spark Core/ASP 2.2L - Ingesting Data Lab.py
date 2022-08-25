@@ -31,6 +31,10 @@
 
 # COMMAND ----------
 
+
+
+# COMMAND ----------
+
 # TODO
 single_product_csv_file_path = f"{datasets_dir}/products/products.csv/part-00000-tid-1663954264736839188-daf30e86-5967-4173-b9ae-d1481d3506db-2367-1-c000.csv"
 print(dbutils.fs.head(single_product_csv_file_path))
@@ -45,6 +49,7 @@ products_df = (spark
           )
 
 products_df.printSchema()
+
 
 # COMMAND ----------
 
