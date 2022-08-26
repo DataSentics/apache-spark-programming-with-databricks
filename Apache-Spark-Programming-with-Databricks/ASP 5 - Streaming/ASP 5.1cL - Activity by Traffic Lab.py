@@ -72,12 +72,17 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
+
 from pyspark.sql.functions import *
 
 spark.conf.set("spark.sql.shuffle.partitions",8)
 
-traffic_df = df.groupBy("traffic_source").agg(approx_count_distinct("users").alias("active_users")).sort("traffic_source")
+traffic_df = (df
+              .groupBy("traffic_source")
+              .agg(approx_count_distinct("user_id").alias("active_users"))
+              .sort("traffic_source")
+             )
+              
 
 # COMMAND ----------
 
@@ -97,6 +102,7 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
+display(traffic_df.sort(col("active_users").desc()))
 
 # COMMAND ----------
 
@@ -114,7 +120,13 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-traffic_query = (traffic_df.FILL_IN
+traffic_query = (traffic_df.writeStream
+                 .outputMode("complete")
+                 
+                 .format("memory")
+                 .queryName("active_users_by_traffic")
+                 .trigger(processingTime="1 second")
+                 .start()
 )
 
 # COMMAND ----------
@@ -137,7 +149,7 @@ print("All test pass")
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC select * from active_users_by_traffic
 
 # COMMAND ----------
 
@@ -162,6 +174,10 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
+
+for s in spark.streams.active:
+    print(s)
+    s.stop()
 
 # COMMAND ----------
 
