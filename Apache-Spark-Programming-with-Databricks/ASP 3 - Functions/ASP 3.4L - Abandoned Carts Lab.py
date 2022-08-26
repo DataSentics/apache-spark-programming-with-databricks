@@ -244,9 +244,16 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-abandoned_items_df = (abandoned_carts_df.count()
+from pyspark.sql.functions import *
+
+
+abandoned_items_df = (abandoned_carts_df
+                      .withColumn("items", explode(col("cart")))
+                      .groupBy("items")
+                      .count()
+                      .sort("items")
                      )
+
 display(abandoned_items_df)
 
 # COMMAND ----------

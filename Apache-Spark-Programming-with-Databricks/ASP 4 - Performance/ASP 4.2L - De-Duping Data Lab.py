@@ -59,16 +59,45 @@ dbutils.fs.head(f"{datasets_dir}/people/people-with-dups.txt")
 
 # COMMAND ----------
 
-# TODO
+from pyspark.sql.functions import col, lower, translate
 
 source_file = f"{datasets_dir}/people/people-with-dups.txt"
 delta_dest_dir = working_dir + "/people"
 
-# In case it already exists
 dbutils.fs.rm(delta_dest_dir, True)
 
-# Complete your work here...
 
+spark.conf.set("spark.sql.shuffle.partitions", 8)
+
+df = (spark
+      .read
+      .option("header", "true")
+      .option("inferSchema", "true")
+      .option("sep", ":")
+      .csv(source_file)
+     )
+
+
+deduped_df = (df
+             .select(col("*"),
+                     lower(col("firstName")).alias("lowerFirstName"),
+                     lower(col("middleName")).alias("lowerMiddleName"),
+                     lower(col("lastName")).alias("lowerLastName"),
+                     translate(col("ssn"), "-", "").alias("translSsn")
+                    )
+             .dropDuplicates(["lowerFirstName", "lowerMiddleName", "lowerLastName", "translSsn", "gender", "birthDate", "salary"])
+             .drop("lowerFirstName", "lowerMiddleName", "lowerLastName", "translSsn")
+             )
+
+(deduped_df
+ .repartition(1)
+ .write
+ .mode("overwrite")
+ .format("delta")
+ .save(delta_dest_dir)
+)
+
+display(deduped_df)
 
 # COMMAND ----------
 
