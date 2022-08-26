@@ -80,21 +80,19 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-from pyspark.sql.functions import approx_count_distinct
+from pyspark.sql.functions import approx_count_distinct, col, hour
 from pyspark.sql.functions import window
 
-#number_of_cores = (sc.statusTracker.getExecutorInfos.length -1)
 spark.conf.set("spark.sql.shuffle.partitions", 12) #DatabricksLearn cluster has 12 cores
 
-
-
 traffic_df = (events_df
-              .groupBy("traffic_source", "hour")
-              .agg(approx_count_distinct("user_id").alias("active_users"))
-              .select("traffic_source,active_users", window.start.cast("string").alias("hour"))
+              .groupBy("traffic_source", window("createdAt","1 hour"))
+              .agg(approx_count_distinct(col("user_id")).alias("active_users"))
+              .select("traffic_source", "active_users", hour("window.start").alias("hour"))
               .orderBy("hour")
-              
 )
+              
+display(traffic_df)
 
 # COMMAND ----------
 
@@ -118,7 +116,8 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
+
+display(traffic_df, streamName="hourly_traffic")
 
 # COMMAND ----------
 
@@ -139,7 +138,8 @@ print("All test pass")
 # TODO
 until_stream_is_ready("hourly_traffic")
 
-for s in FILL_IN:
+for s in spark.streams.active:
+    s.stop()
 
 # COMMAND ----------
 
