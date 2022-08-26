@@ -37,6 +37,7 @@ df = (spark
       .option("maxFilesPerTrigger", 1)
       .json(hourly_events_path)
      )
+display(df)
 
 # COMMAND ----------
 
@@ -49,8 +50,12 @@ df = (spark
 # COMMAND ----------
 
 # TODO
-events_df = (df.FILL_IN
+from pyspark.sql.functions import *
+
+events_df = (df.withColumn("createdAt",(col("event_timestamp")/1e6).cast("timestamp"))
+             .withWatermark("createdAt", "120 minutes")
             )
+display(events_df)
 
 # COMMAND ----------
 
@@ -75,10 +80,17 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-spark.FILL_IN
+from pyspark.sql.functions import approx_count_distinct, hour, window
 
-traffic_df = (events_df.FILL_IN
-)
+spark.conf.set("spark.sql.shuffle.partitions", spark.sparkContext.defaultParallelism)
+
+traffic_df = (events_df
+              .groupBy("traffic_source", window(col("createdAt"), "1 hour"))
+              .agg(approx_count_distinct("user_id").alias("active_users"))
+              .select(col("traffic_source"), col("active_users"), hour(col("window.start")).alias("hour"))
+              .sort("hour")
+             )
+display()
 
 # COMMAND ----------
 
@@ -103,6 +115,7 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
+display(traffic_df, streamName="hourly_traffic")
 
 # COMMAND ----------
 
@@ -121,9 +134,12 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-until_stream_is_ready("hourly_traffic")
 
-for s in FILL_IN:
+for s in spark.streams.active:
+    if s.name == "hourly_traffic":
+        s.stop()
+        
+
 
 # COMMAND ----------
 
@@ -143,6 +159,9 @@ for s in spark.streams.active:
 # COMMAND ----------
 
 classroom_cleanup()
+
+
+
 
 # COMMAND ----------
 

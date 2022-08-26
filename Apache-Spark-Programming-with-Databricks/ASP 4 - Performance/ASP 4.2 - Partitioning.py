@@ -115,7 +115,7 @@ spark.conf.get("spark.sql.shuffle.partitions")
 
 # COMMAND ----------
 
-spark.conf.set("spark.sql.shuffle.partitions", spark.sparkContext.defaultParallelism)
+zzspark.conf.set("spark.sql.shuffle.partitions", spark.sparkContext.defaultParallelism)
 print(spark.conf.get("spark.sql.shuffle.partitions"))
 
 # COMMAND ----------

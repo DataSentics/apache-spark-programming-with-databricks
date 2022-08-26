@@ -208,7 +208,7 @@ display(df)
 
 # TODO
 
-time_stamp_string = <FILL_IN>
+time_stamp_string = "2022-08-26T11:42:57.000+0000"
 df = spark.read.format("delta").option("timestampAsOf", time_stamp_string).load(delta_path)
 display(df)
 
@@ -259,8 +259,8 @@ display(dbutils.fs.ls(delta_path + "/state=CA/"))
 
 # COMMAND ----------
 
-# df = spark.read.format("delta").option("versionAsOf", 0).load(delta_path)
-# display(df)
+df = spark.read.format("delta").option("versionAsOf", 0).load(delta_path)
+display(df)
 
 # COMMAND ----------
 

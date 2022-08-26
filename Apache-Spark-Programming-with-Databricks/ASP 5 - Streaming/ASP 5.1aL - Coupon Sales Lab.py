@@ -107,7 +107,7 @@ coupon_sales_query = (coupon_sales_df
                  .trigger(processingTime="1 second")
                  .option("checkpointLocation", coupons_checkpoint_path)
                  .start(coupons_output_path)
-                )
+                     )
 
 # COMMAND ----------
 
