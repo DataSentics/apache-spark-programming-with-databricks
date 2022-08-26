@@ -208,7 +208,7 @@ display(df)
 
 # TODO
 
-time_stamp_string = <FILL_IN>
+time_stamp_string = "2022-08-26T13:22:13.000+0000"
 df = spark.read.format("delta").option("timestampAsOf", time_stamp_string).load(delta_path)
 display(df)
 

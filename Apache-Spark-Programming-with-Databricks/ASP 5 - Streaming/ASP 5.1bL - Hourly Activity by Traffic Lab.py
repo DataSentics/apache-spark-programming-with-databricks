@@ -48,8 +48,10 @@ df = (spark
 
 # COMMAND ----------
 
-# TODO
-events_df = (df.FILL_IN
+from pyspark.sql.functions import  col
+events_df = (df
+             .withColumn("createdAt", (col("event_timestamp")/ 1e6).cast("timestamp"))
+             .withWatermark("createdAt", "2 hours")
             )
 
 # COMMAND ----------
@@ -74,10 +76,15 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-spark.FILL_IN
+from pyspark.sql.functions import  approx_count_distinct, window, hour , col
+spark.conf.set("spark.sql.shuffle.partitions", 8)
 
-traffic_df = (events_df.FILL_IN
+traffic_df = (events_df
+              .groupBy(col("traffic_source"), window(col("createdAt"),"1 hours"))
+              .agg(approx_count_distinct("user_id").alias("active_users"))
+              .select("traffic_source","active_users", hour(col("window.start")).alias("hour"))
+              .sort(col("hour").asc())
+              
 )
 
 # COMMAND ----------
@@ -104,6 +111,8 @@ print("All test pass")
 
 # TODO
 
+display(traffic_df,"hourly_traffic")
+
 # COMMAND ----------
 
 # MAGIC %md **3.1: CHECK YOUR WORK**
@@ -123,7 +132,9 @@ print("All test pass")
 # TODO
 until_stream_is_ready("hourly_traffic")
 
-for s in FILL_IN:
+for s in spark.streams.active:
+    if s.name == "hourly_traffic":
+        s.stop()
 
 # COMMAND ----------
 
