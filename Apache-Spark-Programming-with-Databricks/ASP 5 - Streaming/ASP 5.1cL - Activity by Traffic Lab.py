@@ -44,7 +44,11 @@
 # COMMAND ----------
 
 # TODO
-df = FILL_IN
+df = (spark.readStream
+      .option("maxFilesPerTrigger",1)
+      .format("delta")
+      .load(events_path)
+)
 
 df.isStreaming
 
@@ -69,9 +73,11 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-spark.FILL_IN
+from pyspark.sql.functions import *
 
-traffic_df = df.FILL_IN
+spark.conf.set("spark.sql.shuffle.partitions",8)
+
+traffic_df = df.groupBy("traffic_source").agg(approx_count_distinct("users").alias("active_users")).sort("traffic_source")
 
 # COMMAND ----------
 
