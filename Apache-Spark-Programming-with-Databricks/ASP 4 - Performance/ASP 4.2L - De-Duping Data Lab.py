@@ -68,10 +68,11 @@ delta_dest_dir = working_dir + "/people"
 dbutils.fs.rm(delta_dest_dir, True)
 
 # Complete your work here...
-
+spark.conf.set("spark.sql.shuffle.partitions", 8)
 
 # COMMAND ----------
 
+from pyspark.sql.functions import col, initcap, regexp_replace
 people_df = (spark
            .read
            .option("sep", ":")
@@ -79,8 +80,23 @@ people_df = (spark
            .option("inferSchema", True)
            .csv(source_file)
           )
-people_df.printSchema()
-display(people_df)
+
+distinct_df = (people_df
+               .withColumn("firstName", initcap(col('firstName')))
+               .withColumn("middleName", initcap(col('middleName')))
+               .withColumn("lastName", initcap(col('lastName')))
+               .withColumn("ssn", regexp_replace(col("ssn"), """^(\d{3})(\d{2})(\d{4})$""", "$1-$2-$3"))
+               .dropDuplicates()
+              )
+display(distinct_df)
+(distinct_df
+.repartition(1)
+.write
+.mode("overwrite")
+.format("delta")
+.save(delta_dest_dir)
+)
+display(dbutils.fs.ls(delta_dest_dir))
 
 # COMMAND ----------
 
