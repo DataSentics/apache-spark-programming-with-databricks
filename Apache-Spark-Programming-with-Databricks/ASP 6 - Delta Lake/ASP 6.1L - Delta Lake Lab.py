@@ -24,6 +24,9 @@
 sales_df = spark.read.parquet(f"{datasets_dir}/sales/sales.parquet")
 delta_sales_path = working_dir + "/delta-sales"
 
+display(sales_df)
+dbutils.fs.ls(delta_sales_path)
+
 # COMMAND ----------
 
 # MAGIC %md ### 1. Write sales data to Delta
@@ -32,7 +35,13 @@ delta_sales_path = working_dir + "/delta-sales"
 # COMMAND ----------
 
 # TODO
-sales_df.FILL_IN
+#dbutils.fs.rm(delta_sales_path, True)
+(sales_df
+.write
+.mode("overwrite")
+.format("delta")
+.save(delta_sales_path)
+)
 
 # COMMAND ----------
 
@@ -51,7 +60,25 @@ assert len(dbutils.fs.ls(delta_sales_path)) > 0
 # COMMAND ----------
 
 # TODO
-updated_sales_df = FILL_IN
+from pyspark.sql.functions import explode, col, count, size, collect_list
+
+#I couldn't figure out a way to do this exercise with built-in commands, so i made an user-defined function
+
+#Function to count in a struct
+def count_struct(elements):
+    x = 0
+    for element in elements:
+        x += 1
+    return int(x)
+        
+udf_count_struct = udf(count_struct, IntegerType())
+
+updated_sales_df = (sales_df
+                    .withColumn("items", explode(col("items")))
+                    .withColumn("items", udf_count_struct(col("items")))
+                    
+         
+)
 display(updated_sales_df)
 
 # COMMAND ----------
@@ -75,7 +102,18 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-updated_sales_df.FILL_IN
+#This is probably intended to happen because items field was initially array of struct, and now its integertype.
+#And I have no clue what to do in this case, so I will delete the old file and replace it with this new one.
+
+dbutils.fs.rm(delta_sales_path, True)
+
+(updated_sales_df
+ .write
+ .mode("overwrite")
+ .format("delta")
+ #.option("mergeSchema","true")
+ .save(delta_sales_path)
+)
 
 # COMMAND ----------
 
@@ -96,11 +134,16 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
+# MAGIC %sql
+# MAGIC 
+# MAGIC DROP TABLE IF EXISTS sales_delta;
+# MAGIC CREATE TABLE sales_delta USING DELTA AS
+# MAGIC SELECT * FROM delta.`dbfs:/user/fabian-augustin-ilie.radomir@datasentics.com/dbacademy/aspwd/asp_6_1l_delta_lake_lab/delta-sales`;
 
 # COMMAND ----------
 
-# TODO
+# MAGIC %sql
+# MAGIC SELECT * FROM sales_delta;
 
 # COMMAND ----------
 
