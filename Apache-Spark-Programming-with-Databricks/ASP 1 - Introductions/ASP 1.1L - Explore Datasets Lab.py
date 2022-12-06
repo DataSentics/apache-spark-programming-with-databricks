@@ -35,8 +35,7 @@
 
 # COMMAND ----------
 
-# TODO
-<FILL_IN>
+# MAGIC %fs ls '/databricks-datasets/'
 
 # COMMAND ----------
 
@@ -49,7 +48,7 @@
 # COMMAND ----------
 
 # TODO
-files = dbutils.FILL_IN
+files = dbutils.fs.ls(path = '/databricks-datasets/')
 display(files)
 
 # COMMAND ----------
@@ -64,8 +63,19 @@ display(files)
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC -- TODO
+spark.sql(f'SET c.users_path = {users_path}')
+spark.sql(f'SET c.sales_path = {sales_path}')
+spark.sql(f'SET c.products_path = {products_path}')
+spark.sql(f'SET c.events_path = {events_path}')
+
+
+# COMMAND ----------
+
+# MAGIC %sql 
+# MAGIC CREATE TABLE IF NOT EXISTS users USING DELTA OPTIONS (path '${c.users_path}');
+# MAGIC CREATE TABLE IF NOT EXISTS sales USING DELTA OPTIONS (path '${c.sales_path}');
+# MAGIC CREATE TABLE IF NOT EXISTS products USING DELTA OPTIONS (path '${c.products_path}');
+# MAGIC CREATE TABLE IF NOT EXISTS events USING DELTA OPTIONS (path '${c.events_path}');
 
 # COMMAND ----------
 
@@ -101,7 +111,7 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT DISTINCT(NAME) AS `PRODUCTS LIST` FROM products
 
 # COMMAND ----------
 
@@ -127,7 +137,7 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT round(AVG(purchase_revenue_in_usd), 2) as `Average purchase revenue` FROM sales
 
 # COMMAND ----------
 
@@ -156,7 +166,7 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC select distinct(event_name) as `List of events` from events;
 
 # COMMAND ----------
 

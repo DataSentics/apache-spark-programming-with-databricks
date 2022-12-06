@@ -199,6 +199,10 @@ display(files)
 
 # COMMAND ----------
 
+events_path
+
+# COMMAND ----------
+
 files = dbutils.fs.ls(events_path)
 display(files)
 
@@ -300,6 +304,13 @@ print(database_name)
 
 dbutils.widgets.text("name", "Brickster", "Name")
 dbutils.widgets.multiselect("colors", "orange", ["red", "orange", "black", "blue"], "Traffic Sources")
+
+# COMMAND ----------
+
+# How do you pass a multiple colors as default value ? I tried as a list, tuple... did not work
+# dbutils.widgets.multiselect("colors_test_list", ("orange", "red"), ["red", "orange", "black", "blue"], "Traffic Sources 2")
+
+dbutils.widgets.help()
 
 # COMMAND ----------
 
