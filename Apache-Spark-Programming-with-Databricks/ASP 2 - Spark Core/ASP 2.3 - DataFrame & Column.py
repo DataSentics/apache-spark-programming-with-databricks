@@ -79,8 +79,8 @@ print(col("device"))
 # COMMAND ----------
 
 col("ecommerce.purchase_revenue_in_usd") + col("ecommerce.total_item_quantity")
-col("event_timestamp").desc()
-(col("ecommerce.purchase_revenue_in_usd") * 100).cast("int")
+# col("event_timestamp").desc()
+# (col("ecommerce.purchase_revenue_in_usd") * 100).cast("int")
 
 # COMMAND ----------
 
