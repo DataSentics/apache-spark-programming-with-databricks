@@ -128,7 +128,7 @@ print("All test pass")
 # TODO
 final_df = (events_df
   .withColumn("revenue", events_df["ecommerce.purchase_revenue_in_usd"])
-  .filter(revenue_df["revenue"].isNotNull())
+  .filter(col("revenue").isNotNull())
   .drop("event_name")
 )
 
