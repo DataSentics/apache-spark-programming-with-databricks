@@ -35,8 +35,7 @@
 
 # COMMAND ----------
 
-# TODO
-<FILL_IN>
+# MAGIC %fs ls /databricks-datasets
 
 # COMMAND ----------
 
@@ -49,7 +48,7 @@
 # COMMAND ----------
 
 # TODO
-files = dbutils.FILL_IN
+files = dbutils.fs.ls('/databricks-datasets')
 display(files)
 
 # COMMAND ----------
@@ -64,8 +63,26 @@ display(files)
 
 # COMMAND ----------
 
+#spark.sql(f"SET c.users_path = {users_path}")
+
+# COMMAND ----------
+
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC CREATE TABLE IF NOT EXISTS users
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.users_path}");
+# MAGIC 
+# MAGIC CREATE TABLE IF NOT EXISTS sales
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.sales_path}");
+# MAGIC 
+# MAGIC CREATE TABLE IF NOT EXISTS products
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.products_path}");
+# MAGIC 
+# MAGIC CREATE TABLE IF NOT EXISTS events
+# MAGIC USING DELTA
+# MAGIC OPTIONS (path = "${c.events_path}");
 
 # COMMAND ----------
 
@@ -101,7 +118,7 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT * FROM products;
 
 # COMMAND ----------
 
@@ -127,7 +144,8 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT round(avg(purchase_revenue_in_usd),2)  
+# MAGIC FROM sales;
 
 # COMMAND ----------
 
@@ -156,7 +174,8 @@ display(files)
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC -- TODO
+# MAGIC SELECT DISTINCT event_name
+# MAGIC FROM events;
 
 # COMMAND ----------
 
