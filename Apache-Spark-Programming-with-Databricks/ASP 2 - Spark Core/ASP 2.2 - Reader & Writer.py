@@ -271,6 +271,10 @@ users_output_dir = working_dir + "/users.parquet"
 
 # COMMAND ----------
 
+print(working_dir)
+
+# COMMAND ----------
+
 display(
     dbutils.fs.ls(users_output_dir)
 )
@@ -344,6 +348,12 @@ events_output_path = working_dir + "/delta/events"
  .format("delta")
  .mode("overwrite")
  .save(events_output_path)
+)
+
+# COMMAND ----------
+
+display(
+    dbutils.fs.ls(events_output_path)
 )
 
 # COMMAND ----------
