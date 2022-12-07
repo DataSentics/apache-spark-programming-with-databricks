@@ -132,6 +132,7 @@ events_df = (spark
            )
 
 events_df.printSchema()
+display(events_df)
 
 # COMMAND ----------
 
