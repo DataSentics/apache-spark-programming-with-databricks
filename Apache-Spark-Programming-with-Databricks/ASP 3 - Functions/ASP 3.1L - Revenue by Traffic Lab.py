@@ -54,9 +54,8 @@ display(df)
 # COMMAND ----------
 
 # TODO
-
-traffic_df = (df.FILL_IN
-)
+from pyspark.sql.functions import sum, avg
+traffic_df = df.groupBy('traffic_source').agg(sum('revenue').alias("total_rev"), avg('revenue').alias("avg_rev"))
 
 display(traffic_df)
 
@@ -84,7 +83,7 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-top_traffic_df = (traffic_df.FILL_IN
+top_traffic_df = (traffic_df.sort('total_rev', ascending= False).limit(3)
 )
 display(top_traffic_df)
 
@@ -97,7 +96,6 @@ display(top_traffic_df)
 expected2 = [(78800000.3, 983.2915), (47218429.0, 1086.8303), (24797837.0, 1076.6221)]
 test_df = top_traffic_df.select(round("total_rev", 4).alias("total_rev"), round("avg_rev", 4).alias("avg_rev"))
 result2 = [(row.total_rev, row.avg_rev) for row in test_df.collect()]
-
 assert(expected2 == result2)
 print("All test pass")
 
@@ -111,7 +109,10 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-final_df = (top_traffic_df.FILL_IN
+from pyspark.sql.functions import round
+final_df = (top_traffic_df
+            .withColumn("avg_rev", (top_traffic_df["avg_rev"]*100).cast("long")/100)
+            .withColumn("total_rev", (top_traffic_df["total_rev"]*100).cast("long")/100)
 )
 
 display(final_df)
@@ -137,7 +138,9 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-bonus_df = (top_traffic_df.FILL_IN
+bonus_df = (top_traffic_df
+            .withColumn('avg_rev', round('avg_rev', 2))
+            .withColumn('total_rev', round('total_rev', 2))
 )
 
 display(bonus_df)
@@ -161,7 +164,12 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-chain_df = (df.FILL_IN
+chain_df = (df.groupBy('traffic_source')
+                .agg(sum('revenue').alias("total_rev"), 
+                     avg('revenue').alias("avg_rev"))
+                .sort('total_rev', ascending= False).limit(3)
+                .withColumn('avg_rev', round('avg_rev', 2))
+                .withColumn('total_rev', round('total_rev', 2))
 )
 
 display(chain_df)
