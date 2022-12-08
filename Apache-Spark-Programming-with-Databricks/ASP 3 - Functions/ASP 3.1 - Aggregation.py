@@ -50,6 +50,7 @@ display(df)
 
 df.groupBy("event_name")
 
+
 # COMMAND ----------
 
 df.groupBy("geo.state", "geo.city")
