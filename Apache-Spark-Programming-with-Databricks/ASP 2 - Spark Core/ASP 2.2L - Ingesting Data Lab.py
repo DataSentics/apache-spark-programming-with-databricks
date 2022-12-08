@@ -33,10 +33,10 @@
 
 # TODO
 single_product_csv_file_path = f"{datasets_dir}/products/products.csv/part-00000-tid-1663954264736839188-daf30e86-5967-4173-b9ae-d1481d3506db-2367-1-c000.csv"
-print(FILL_IN)
+print(dbutils.fs.head(single_product_csv_file_path))
 
 products_csv_path = f"{datasets_dir}/products/products.csv"
-products_df = FILL_IN
+products_df = spark.read.csv(products_csv_path, inferSchema=True, header=True)
 
 products_df.printSchema()
 
@@ -56,10 +56,28 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-user_defined_schema = FILL_IN
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType
+user_defined_schema = StructType([
+    StructField('item_id', StringType(), True),
+    StructField('name', StringType(), True),
+    StructField('price', DoubleType(), True)
+])
 
-products_df2 = FILL_IN
+products_df2 = spark.read.csv(products_csv_path, schema=user_defined_schema, header=True)
+
+# COMMAND ----------
+
+# Playground
+
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType
+user_defined_schema_hh = StructType([
+    StructField('item_id2', StringType(), True),
+    StructField('name', StringType(), True),
+    StructField('price', DoubleType(), True)
+])
+
+products_df_hh = spark.read.csv(products_csv_path, schema=user_defined_schema_hh, header=False)
+products_df_hh.head(5)
 
 # COMMAND ----------
 
@@ -86,10 +104,11 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-ddl_schema = FILL_IN
+ddl_schema = 'item_id string, name string, price double'
 
-products_df3 = FILL_IN
+products_df3 = spark.read.csv(products_csv_path, schema=ddl_schema, header=True)
+products_df3.printSchema()
+display(products_df3)
 
 # COMMAND ----------
 
@@ -107,9 +126,13 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
 products_output_path = working_dir + "/delta/products"
-products_df.FILL_IN
+(products_df
+ .write
+ .format('delta')
+ .mode('overwrite')
+ .save(products_output_path)
+)
 
 # COMMAND ----------
 

@@ -71,6 +71,8 @@ users_df = (spark
 
 users_df.printSchema()
 
+# What is the difference between this cell and the above ?
+
 # COMMAND ----------
 
 # MAGIC %md Manually define the schema by creating a **`StructType`** with column names and data types
@@ -192,7 +194,7 @@ spark.conf.set("com.whatever.your_scope.events_path", events_json_path)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC In a Python notebook like this one, create a Scala cell to injest the data and produce the DDL formatted schema
+# MAGIC In a Python notebook like this one, create a Scala cell to ingest the data and produce the DDL formatted schema
 
 # COMMAND ----------
 

@@ -308,9 +308,9 @@ dbutils.widgets.multiselect("colors", "orange", ["red", "orange", "black", "blue
 # COMMAND ----------
 
 # How do you pass a multiple colors as default value ? I tried as a list, tuple... did not work
-# dbutils.widgets.multiselect("colors_test_list", ("orange", "red"), ["red", "orange", "black", "blue"], "Traffic Sources 2")
+dbutils.widgets.multiselect("colors_test_list", "orange,red", ["red", "orange", "black", "blue"], "Traffic Sources 2")
 
-dbutils.widgets.help()
+# dbutils.widgets.help()
 
 # COMMAND ----------
 
