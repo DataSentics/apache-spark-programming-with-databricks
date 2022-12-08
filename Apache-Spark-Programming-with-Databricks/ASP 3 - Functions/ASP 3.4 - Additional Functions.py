@@ -45,7 +45,7 @@ display(sales_df)
 # MAGIC | --- | --- |
 # MAGIC | col / column | Returns a Column based on the given column name. |
 # MAGIC | lit | Creates a Column of literal value |
-# MAGIC | isnull | Return true iff the column is null |
+# MAGIC | isnull | Return true if the column is null |
 # MAGIC | rand | Generate a random column with independent and identically distributed (i.i.d.) samples uniformly distributed in [0.0, 1.0) |
 
 # COMMAND ----------
@@ -65,6 +65,7 @@ display(gmail_accounts)
 # COMMAND ----------
 
 display(gmail_accounts.select("email", lit(True).alias("gmail user")))
+gmail_accounts.select("email", lit(True).alias("gmail user")).printSchema()
 
 # COMMAND ----------
 

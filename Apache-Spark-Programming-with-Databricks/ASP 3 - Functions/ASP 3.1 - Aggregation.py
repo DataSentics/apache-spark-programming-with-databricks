@@ -128,7 +128,7 @@ display(city_purchase_quantities_df)
 
 from pyspark.sql.functions import sum
 
-state_purchases_df = df.groupBy("geo.state").agg(sum("ecommerce.total_item_quantity").alias("total_purchases"))
+state_purchases_df = df.groupBy("geo.state").agg(sum("ecommerce.total_item_quantity").alias("total_purchases"), sum("ecommerce.purchase_revenue_in_usd").alias('total_revenue'))
 display(state_purchases_df)
 
 # COMMAND ----------

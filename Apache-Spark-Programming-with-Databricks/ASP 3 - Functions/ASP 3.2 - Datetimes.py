@@ -109,7 +109,7 @@ from pyspark.sql.functions import date_format
 
 formatted_df = (timestamp_df
                 .withColumn("date string", date_format("timestamp", "MMMM dd, yyyy"))
-                .withColumn("time string", date_format("timestamp", "HH:mm:ss.SSSSSS"))
+                .withColumn("time string", date_format("timestamp", "HH:mm:ss.SSS"))
                )
 display(formatted_df)
 

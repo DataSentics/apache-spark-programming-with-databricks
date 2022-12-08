@@ -41,6 +41,7 @@ df = (spark.read.format("delta").load(events_path)
      )
 
 display(df)
+df.printSchema()
 
 # COMMAND ----------
 
@@ -53,11 +54,15 @@ display(df)
 
 # COMMAND ----------
 
-# TODO
+from pyspark.sql.functions import sum, avg
 
-traffic_df = (df.FILL_IN
-)
-
+traffic_df = (df
+              .groupBy('traffic_source')
+              .agg(
+                  sum('revenue').alias('total_rev'), 
+                  avg('revenue').alias('avg_rev')
+              )
+             )
 display(traffic_df)
 
 # COMMAND ----------
@@ -83,8 +88,9 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-top_traffic_df = (traffic_df.FILL_IN
+top_traffic_df = (traffic_df
+                  .sort(col('total_rev').desc())
+                  .limit(3)
 )
 display(top_traffic_df)
 
@@ -110,11 +116,22 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-final_df = (top_traffic_df.FILL_IN
+from pyspark.sql.types import LongType
+
+
+# final_df = (top_traffic_df
+#             .withColumn('total_rev', round(col('total_rev'),2))
+#             .withColumn('avg_rev', round(col('avg_rev'),2))
+# )
+
+final_df = (top_traffic_df
+            .withColumn('total_rev', (col('total_rev') * 100).cast(LongType()) / 100)
+            .withColumn('avg_rev', (col('avg_rev') * 100).cast(LongType()) / 100)
 )
 
-display(final_df)
+# display(final_df)
+final_df.printSchema()
+
 
 # COMMAND ----------
 
@@ -136,8 +153,11 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-bonus_df = (top_traffic_df.FILL_IN
+bonus_df = (top_traffic_df
+            .withColumn('total_rev', round(col('total_rev'),2))
+            .withColumn('avg_rev', round(col('avg_rev'),2))
+            .sort(col('total_rev').desc())
+            .limit(3)
 )
 
 display(bonus_df)
@@ -160,9 +180,18 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-chain_df = (df.FILL_IN
-)
+chain_df = (df
+              .groupBy('traffic_source')
+              .agg(
+                  sum('revenue').alias('total_rev'), 
+                  avg('revenue').alias('avg_rev')
+                  )
+              .withColumn('total_rev', round(col('total_rev'),2))
+              .withColumn('avg_rev', round(col('avg_rev'),2))
+              .sort(col('total_rev').desc())
+              .limit(3)
+             )
+
 
 display(chain_df)
 
