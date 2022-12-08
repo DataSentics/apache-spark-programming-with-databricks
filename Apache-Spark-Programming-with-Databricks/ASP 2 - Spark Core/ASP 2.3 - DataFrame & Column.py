@@ -146,7 +146,7 @@ display(locations_df)
 
 # COMMAND ----------
 
-apple_df = events_df.selectExpr("user_id", "device in ('macOS', 'iOS') as apple_user")
+apple_df = events_df.selectExpr("user_id", "device", "device in ('macOS', 'iOS') as apple_user")
 display(apple_df)
 
 # COMMAND ----------
@@ -181,7 +181,7 @@ display(no_sales_df)
 # COMMAND ----------
 
 mobile_df = events_df.withColumn("mobile", col("device").isin("iOS", "Android"))
-display(mobile_df)
+display(mobile_df.select('device', 'mobile'))
 
 # COMMAND ----------
 

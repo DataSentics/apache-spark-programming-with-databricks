@@ -38,9 +38,10 @@ display(events_df)
 
 # COMMAND ----------
 
-# TODO
-revenue_df = events_df.FILL_IN
-display(revenue_df)
+from pyspark.sql.functions import col
+revenue_df = events_df.withColumn('revenue', col('ecommerce.purchase_revenue_in_usd'))
+# display(revenue_df)
+revenue_df.printSchema()
 
 # COMMAND ----------
 
@@ -62,8 +63,7 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-purchases_df = revenue_df.FILL_IN
+purchases_df = revenue_df.filter(col('revenue').isNotNull())
 display(purchases_df)
 
 # COMMAND ----------
@@ -86,8 +86,7 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-distinct_df = purchases_df.FILL_IN
+distinct_df = purchases_df.select('event_name').dropDuplicates()
 display(distinct_df)
 
 # COMMAND ----------
@@ -98,8 +97,7 @@ display(distinct_df)
 
 # COMMAND ----------
 
-# TODO
-final_df = purchases_df.FILL_IN
+final_df = purchases_df.drop('event_name')
 display(final_df)
 
 # COMMAND ----------
@@ -120,9 +118,25 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
+# MAGIC %md
+# MAGIC ####To Chain:####
+# MAGIC 
+# MAGIC 1. Extract purchase revenue for each event
+# MAGIC - Add new column **`revenue`** by extracting **`ecommerce.purchase_revenue_in_usd`**
+# MAGIC 
+# MAGIC 2. Filter events where revenue is not null
+# MAGIC - Filter for records where **`revenue`** is not **`null`**
+# MAGIC 
+# MAGIC 4. Drop unneeded column
+# MAGIC - Since there's only one event type, drop **`event_name`** from **`purchases_df`**.
+
+# COMMAND ----------
+
+from pyspark.sql.functions import col
 final_df = (events_df
-  .FILL_IN
+            .withColumn('revenue', col('ecommerce.purchase_revenue_in_usd'))
+            .filter(col('revenue').isNotNull())
+            .drop('event_name')
 )
 
 display(final_df)
