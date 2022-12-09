@@ -44,7 +44,12 @@
 # COMMAND ----------
 
 # TODO
-df = FILL_IN
+df = (spark
+      .readStream
+      .option("maxFilesPerTrigger", 1)
+      .format('delta')
+      .load(events_path)
+)
 
 df.isStreaming
 
@@ -69,9 +74,14 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-spark.FILL_IN
+from pyspark.sql.functions import *
+spark.conf.set('spark.sql.shuffle.partitions', sc.defaultParallelism)
 
-traffic_df = df.FILL_IN
+traffic_df = (df
+              .groupBy('traffic_source')
+              .agg(approx_count_distinct('user_id').alias('active_users'))
+              .sort('traffic_source')
+)
 
 # COMMAND ----------
 
@@ -91,6 +101,7 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
+display(traffic_df)
 
 # COMMAND ----------
 
@@ -108,7 +119,13 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-traffic_query = (traffic_df.FILL_IN
+traffic_query = (traffic_df
+                 .writeStream
+                 .queryName('active_users_by_traffic')
+                 .format('memory')
+                 .outputMode('complete')
+                 .trigger(processingTime = '1 second')
+                 .start()
 )
 
 # COMMAND ----------
@@ -117,7 +134,7 @@ traffic_query = (traffic_df.FILL_IN
 
 # COMMAND ----------
 
-until_stream_is_ready("active_users_by_traffic")
+# until_stream_is_ready("active_users_by_traffic")
 assert traffic_query.isActive
 assert "active_users_by_traffic" in traffic_query.name
 assert traffic_query.lastProgress["sink"]["description"] == "MemorySink"
@@ -132,6 +149,8 @@ print("All test pass")
 
 # MAGIC %sql
 # MAGIC -- TODO
+# MAGIC SELECT *
+# MAGIC FROM active_users_by_traffic
 
 # COMMAND ----------
 
@@ -156,6 +175,9 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
+for s in spark.streams.active:
+    print(s.name)
+    s.stop()
 
 # COMMAND ----------
 
