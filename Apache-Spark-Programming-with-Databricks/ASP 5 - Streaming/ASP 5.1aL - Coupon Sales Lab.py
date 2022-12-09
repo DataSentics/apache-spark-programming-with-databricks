@@ -35,9 +35,19 @@
 
 # COMMAND ----------
 
-# TODO
-df = (spark.FILL_IN
+f = dbutils.fs.ls(sales_path)
+display(f)
+
+# COMMAND ----------
+
+df = (spark
+      .readStream
+      .option('maxFilesPertrigger', 1)
+      .format('delta')
+      .load(sales_path)
 )
+
+df.isStreaming
 
 # COMMAND ----------
 
@@ -59,8 +69,11 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-coupon_sales_df = (df.FILL_IN
+from pyspark.sql.functions import col, explode
+
+coupon_sales_df = (df
+                   .withColumn('items', explode(col('items')))
+                   .filter(col('items.coupon').isNotNull())
 )
 
 # COMMAND ----------
@@ -86,11 +99,17 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
 coupons_checkpoint_path = working_dir + "/coupon-sales/checkpoint"
 coupons_output_path = working_dir + "/coupon-sales/output"
 
-coupon_sales_query = (coupon_sales_df.FILL_IN
+coupon_sales_query = (coupon_sales_df
+                      .writeStream
+                      .format('delta')
+                      .outputMode('append')
+                      .queryName('coupon_sales')
+                      .trigger(processingTime = '1 second')
+                      .option('checkpointLocation', coupons_checkpoint_path)
+                      .start(coupons_output_path)                   
                      )
 
 # COMMAND ----------
@@ -114,13 +133,11 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-query_id = coupon_sales_query.FILL_IN
+query_id = coupon_sales_query.id
 
 # COMMAND ----------
 
-# TODO
-query_status = coupon_sales_query.FILL_IN
+query_status = coupon_sales_query.status
 
 # COMMAND ----------
 
@@ -139,8 +156,7 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-coupon_sales_query.FILL_IN
+coupon_sales_query.stop()
 
 # COMMAND ----------
 
@@ -157,7 +173,16 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
+# https://stackoverflow.com/questions/71288669/in-pyspark-how-to-check-the-format-a-pyspark-was-read-in-delta-vs-parquet
+from delta.tables import DeltaTable
+
+print(DeltaTable.isDeltaTable(spark, coupons_output_path))
+
+# or
+
+files = dbutils.fs.ls(coupons_output_path + '/_delta_log')
+display(files)
+# Check visually if delta_log folder is not empty; or do a len() of variable files
 
 # COMMAND ----------
 

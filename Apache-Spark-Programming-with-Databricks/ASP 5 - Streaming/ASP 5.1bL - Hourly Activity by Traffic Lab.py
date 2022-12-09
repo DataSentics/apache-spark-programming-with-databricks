@@ -48,8 +48,10 @@ df = (spark
 
 # COMMAND ----------
 
-# TODO
-events_df = (df.FILL_IN
+from pyspark.sql.functions import col
+from pyspark.sql.types import TimestampType
+
+events_df = (df.withColumn('createdAt', (col('event_timestamp')/1e6).cast(TimestampType()))
             )
 
 # COMMAND ----------
@@ -74,11 +76,26 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-spark.FILL_IN
+# https://sparkbyexamples.com/spark/spark-shuffle-partitions/
+spark.conf.set("spark.sql.shuffle.partitions",8)
+# println(df.groupBy("_c0").count().rdd.partitions.length)
 
-traffic_df = (events_df.FILL_IN
+# Question: is there a way to read dynamically the number of cores...?
+
+# COMMAND ----------
+
+from pyspark.sql.functions import approx_count_distinct, window, hour
+
+traffic_df = (events_df
+              .groupby('traffic_source', window('createdAt', '1 hour'))
+              .agg(approx_count_distinct('user_id').alias('active_users'))
+              .select('traffic_source', 'active_users', hour('window.start').alias('hour'))
+              .sort(col('hour').asc())          
 )
+
+# COMMAND ----------
+
+str(traffic_df.schema)
 
 # COMMAND ----------
 
@@ -102,7 +119,7 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
+display(traffic_df, streamName = 'hourly_traffic')
 
 # COMMAND ----------
 
@@ -120,10 +137,12 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
 until_stream_is_ready("hourly_traffic")
 
-for s in FILL_IN:
+for s in spark.streams.active:
+    print(s.name)
+    if s.name == 'hourly_traffic':
+        s.stop()
 
 # COMMAND ----------
 
