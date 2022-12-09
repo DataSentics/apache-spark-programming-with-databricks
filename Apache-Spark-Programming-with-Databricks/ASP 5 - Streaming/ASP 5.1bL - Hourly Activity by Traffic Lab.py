@@ -48,8 +48,15 @@ df = (spark
 
 # COMMAND ----------
 
+# display(df)
+
+# COMMAND ----------
+
 # TODO
-events_df = (df.FILL_IN
+from pyspark.sql.functions import col
+events_df = (df
+             .withColumn("createdAt", (col("event_timestamp") / 1e6).cast("timestamp"))
+             .withWatermark("createdAt", "2 hours")
             )
 
 # COMMAND ----------
@@ -74,10 +81,22 @@ print("All test pass")
 
 # COMMAND ----------
 
-# TODO
-spark.FILL_IN
+print(sc.defaultParallelism)
 
-traffic_df = (events_df.FILL_IN
+# COMMAND ----------
+
+# TODO
+from pyspark.sql.functions import approx_count_distinct, window, col, hour  
+
+# needed to go to Performance chapter 
+spark.conf.set("spark.sql.shuffle.partitions", sc.defaultParallelism)
+
+# https://stackoverflow.com/questions/48302090/how-to-aggregate-over-1-hour-windows-cumulatively-within-a-day-in-pyspark
+traffic_df = (events_df
+              .groupBy("traffic_source", window("createdAt", "1 hour"))
+              .agg(approx_count_distinct("user_id").alias("active_users"))
+              .select("traffic_source", "active_users", hour("window.start").alias("hour"))
+              .sort(col("hour").asc())
 )
 
 # COMMAND ----------
@@ -103,6 +122,7 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
+display(traffic_df, streamName="hourly_traffic")
 
 # COMMAND ----------
 
@@ -123,7 +143,9 @@ print("All test pass")
 # TODO
 until_stream_is_ready("hourly_traffic")
 
-for s in FILL_IN:
+for s in spark.streams.active:
+    if s.name == "hourly_traffic":
+        s.stop()
 
 # COMMAND ----------
 
