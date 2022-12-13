@@ -126,6 +126,7 @@ stupid_df.explain(True)
 
 # COMMAND ----------
 
+from pyspark.sql.functions import col
 jdbc_url = "jdbc:postgresql://54.213.33.240/training"
 
 # Username and Password w/read-only rights

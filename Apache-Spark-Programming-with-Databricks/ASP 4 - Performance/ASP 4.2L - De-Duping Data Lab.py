@@ -72,6 +72,52 @@ dbutils.fs.rm(delta_dest_dir, True)
 
 # COMMAND ----------
 
+import pyspark.sql.functions as f
+import pyspark.sql.types as t
+
+schema = t.StructType([
+    t.StructField('firstName', t.StringType(), True),
+    t.StructField('middleName', t.StringType(), True),
+    t.StructField('lastName', t.StringType(), True),
+    t.StructField('gender', t.StringType(), True),
+    t.StructField('birthDate', t.DateType(), True),
+    t.StructField('salary', t.DoubleType(), True),
+    t.StructField('ssn', t.StringType(), True)
+])
+
+source_df = (spark
+            .read
+            .format('csv')
+             .option('sep', ':')
+             .option('header', 'true')
+             .schema(schema)
+             .load(source_file)
+            )
+
+# display(source_df.limit(5))
+source_df.printSchema()
+
+# COMMAND ----------
+
+cleaned_df = (source_df
+                .withColumn('firstName', f.initcap(f.col('firstName')))
+                .withColumn('middleName', f.initcap(f.col('middleName')))
+                .withColumn('lastName', f.initcap(f.col('lastName')))
+                  .withColumn('ssn', f.regexp_replace('ssn', '-', ''))
+                .drop_duplicates()
+                  .coalesce(1)
+                  )
+
+
+# display(cleaned_df.sample(0.0001))
+
+# COMMAND ----------
+
+cleaned_df.write.format('delta').option('path', delta_dest_dir).save()
+
+
+# COMMAND ----------
+
 # MAGIC %md **CHECK YOUR WORK**
 
 # COMMAND ----------
