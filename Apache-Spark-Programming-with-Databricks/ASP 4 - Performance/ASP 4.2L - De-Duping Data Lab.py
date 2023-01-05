@@ -59,6 +59,10 @@ dbutils.fs.head(f"{datasets_dir}/people/people-with-dups.txt")
 
 # COMMAND ----------
 
+display(dbutils.fs.ls(f"{datasets_dir}"))
+
+# COMMAND ----------
+
 # TODO
 
 source_file = f"{datasets_dir}/people/people-with-dups.txt"
@@ -72,7 +76,50 @@ dbutils.fs.rm(delta_dest_dir, True)
 
 # COMMAND ----------
 
-# MAGIC %md **CHECK YOUR WORK**
+print(delta_dest_dir)
+
+# COMMAND ----------
+
+bronze_df = (spark
+             .read
+             .option("sep", ":")
+             .option("header", True)
+             .option("inferSchema", True)
+             .csv(source_file)
+            )
+
+# COMMAND ----------
+
+bronze_df.show()
+
+# COMMAND ----------
+
+from pyspark.sql.functions import col, initcap, expr
+silver_df = (bronze_df.withColumn("firstName", initcap(col("firstName")))
+                      .withColumn("middleName", initcap(col("middleName")))
+                      .withColumn("lastName", initcap(col("lastName")))
+                      .withColumn("ssn", expr("replace(ssn, '-', '')"))
+                                 )
+
+# COMMAND ----------
+
+silver_df.count()
+
+# COMMAND ----------
+
+silver_df = silver_df.dropDuplicates(['lastName', 'ssn'])
+
+# COMMAND ----------
+
+silver_df.count()
+
+# COMMAND ----------
+
+silver_df.repartition(1).write.mode('overwrite').save('dbfs:/user/lucian-florin.bidica@datasentics.com/dbacademy/aspwd/asp_4_2l_de_duping_data_lab/people')
+
+# COMMAND ----------
+
+display(dbutils.fs.ls("dbfs:/user/lucian-florin.bidica@datasentics.com/dbacademy/aspwd/asp_4_2l_de_duping_data_lab/people"))
 
 # COMMAND ----------
 
